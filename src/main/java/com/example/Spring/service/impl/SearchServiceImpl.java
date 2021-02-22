@@ -33,7 +33,7 @@ public class SearchServiceImpl implements SearchService {
            String title= (String) product.get("name");
            ProductDTO p=new ProductDTO();
            p.setDescription((String) product.get("description"));
-            p.setInstock((int) product.get("isInStock"));
+            p.setInstock((int) product.get("isInStock") == 1 ? true: false);
             p.setSaleprice(Double.parseDouble(product.get("offerPrice").toString()));
            p.setTitle(title);
            productDTOS.add(p);

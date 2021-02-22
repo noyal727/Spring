@@ -1,16 +1,16 @@
 package com.example.Spring.dto;
 
 public class ProductDTO {
-    private int instock;
+    private boolean instock;
     private Double saleprice;
     private String description;
     private String title;
 
-    public int isInstock() {
+    public boolean isInstock() {
         return instock;
     }
 
-    public void setInstock(int instock) {
+    public void setInstock(boolean instock) {
         this.instock = instock;
     }
 
