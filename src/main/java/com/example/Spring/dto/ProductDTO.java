@@ -1,24 +1,24 @@
 package com.example.Spring.dto;
 
 public class ProductDTO {
-    private boolean instock;
-    private String saleprice;
+    private int instock;
+    private Double saleprice;
     private String description;
     private String title;
 
-    public boolean isInstock() {
+    public int isInstock() {
         return instock;
     }
 
-    public void setInstock(boolean instock) {
+    public void setInstock(int instock) {
         this.instock = instock;
     }
 
-    public String getSaleprice() {
+    public Double getSaleprice() {
         return saleprice;
     }
 
-    public void setSaleprice(String saleprice) {
+    public void setSaleprice(Double saleprice) {
         this.saleprice = saleprice;
     }
 
