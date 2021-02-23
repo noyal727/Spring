@@ -26,21 +26,39 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public SearchResponseDTO getProducts(SearchRequestDTO request) {
         Map<String, Object> productResponce= searchClient.getProducts(request.getSearchTerm());
+        Map<String, Object> plocation=searchClient.getProducts("stockLocation:"+"\""+request.getLocation()+"\"");
+
         List<Map<String, Object>> products = (List<Map<String, Object>>)((Map<String, Object>) productResponce.get("response")).get("docs");
-        List<ProductDTO> productDTOS = new ArrayList<>();
+        List<Map<String, Object>> locationlist = (List<Map<String, Object>>)((Map<String, Object>) plocation.get("response")).get("docs");
+
+        List<ProductDTO> list = new ArrayList<>();
+        List<ProductDTO> list1 = new ArrayList<>();
+
         for (Map<String, Object> product: products) {
             // parse product into ProductDTO and add into productDTOS list
            String title= (String) product.get("name");
            ProductDTO p=new ProductDTO();
+
            p.setDescription((String) product.get("description"));
             p.setInstock((int) product.get("isInStock") == 1 ? true: false);
             p.setSaleprice(Double.parseDouble(product.get("offerPrice").toString()));
            p.setTitle(title);
-           productDTOS.add(p);
+           list.add(p);
+        }
+        for (Map<String, Object> product: locationlist) {
+            // parse product into ProductDTO and add into productDTOS list
+            String title= (String) product.get("name");
+            ProductDTO p=new ProductDTO();
 
+            p.setDescription((String) product.get("description"));
+            p.setInstock((int) product.get("isInStock") == 1 ? true: false);
+            p.setSaleprice(Double.parseDouble(product.get("offerPrice").toString()));
+            p.setTitle(title);
+            list1.add(p);
         }
         SearchResponseDTO responseDTO =new SearchResponseDTO();
-        responseDTO.setProducts((productDTOS));
+        responseDTO.setProducts((list));
+        responseDTO.setProducts((list1));
         return responseDTO;
 
 

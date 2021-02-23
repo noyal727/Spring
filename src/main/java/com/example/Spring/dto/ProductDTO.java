@@ -6,6 +6,8 @@ public class ProductDTO {
     private String description;
     private String title;
 
+
+
     public boolean isInstock() {
         return instock;
     }
@@ -38,7 +40,10 @@ public class ProductDTO {
         this.title = title;
     }
 
+
+
     @Override
+
     public String toString() {
         return "MyRequestDTO{" +
                 "instock=" + instock +
