@@ -13,54 +13,78 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 
 import static java.util.Arrays.*;
 
 @Service
 
 public class SearchServiceImpl implements SearchService {
+    public void awaitTerminationAfterShutdown(ExecutorService threadPool) {
+        threadPool.shutdown();
+        try {
+            if (!threadPool.awaitTermination(60, TimeUnit.SECONDS)) {
+                threadPool.shutdownNow();
+            }
+        } catch (InterruptedException ex) {
+            threadPool.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
     @Autowired
     private SearchClient searchClient;
 
 
     @Override
     public SearchResponseDTO getProducts(SearchRequestDTO request) {
-        Map<String, Object> productResponce= searchClient.getProducts(request.getSearchTerm());
-        Map<String, Object> plocation=searchClient.getProducts("stockLocation:"+"\""+request.getLocation()+"\"");
+        SearchResponseDTO responseDTO = new SearchResponseDTO();
 
-        List<Map<String, Object>> products = (List<Map<String, Object>>)((Map<String, Object>) productResponce.get("response")).get("docs");
-        List<Map<String, Object>> locationlist = (List<Map<String, Object>>)((Map<String, Object>) plocation.get("response")).get("docs");
 
-        List<ProductDTO> list = new ArrayList<>();
-        List<ProductDTO> list1 = new ArrayList<>();
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        Runnable runnableTask1 = () -> {
+            Map<String, Object> productResponce = searchClient.getProducts(request.getSearchTerm());
+            List<Map<String, Object>> products = (List<Map<String, Object>>) ((Map<String, Object>) productResponce.get("response")).get("docs");
+            List<ProductDTO> list = new ArrayList<>();
 
-        for (Map<String, Object> product: products) {
-            // parse product into ProductDTO and add into productDTOS list
-           String title= (String) product.get("name");
-           ProductDTO p=new ProductDTO();
+            for (Map<String, Object> product : products) {
+                // parse product into ProductDTO and add into productDTOS list
+                String title = (String) product.get("name");
+                ProductDTO p = new ProductDTO();
 
-           p.setDescription((String) product.get("description"));
-            p.setInstock((int) product.get("isInStock") == 1 ? true: false);
-            p.setSaleprice(Double.parseDouble(product.get("offerPrice").toString()));
-           p.setTitle(title);
-           list.add(p);
+                p.setDescription((String) product.get("description"));
+                p.setInstock((int) product.get("isInStock") == 1 ? true : false);
+                p.setSaleprice(Double.parseDouble(product.get("offerPrice").toString()));
+                p.setTitle(title);
+                list.add(p);
+
+            }
+            responseDTO.setProducts((list));
+        };
+        Runnable runnableTask2 = () -> {
+            Map<String, Object> plocation = searchClient.getProducts("stockLocation:" + "\"" + request.getLocation() + "\"");
+            List<Map<String, Object>> locationlist = (List<Map<String, Object>>) ((Map<String, Object>) plocation.get("response")).get("docs");
+            List<ProductDTO> list1 = new ArrayList<>();
+            for (Map<String, Object> product : locationlist) {
+                // parse product into ProductDTO and add into productDTOS list
+                String title = (String) product.get("name");
+                ProductDTO p = new ProductDTO();
+
+                p.setDescription((String) product.get("description"));
+                p.setInstock((int) product.get("isInStock") == 1 ? true : false);
+                p.setSaleprice(Double.parseDouble(product.get("offerPrice").toString()));
+                p.setTitle(title);
+                list1.add(p);
+            }
+            responseDTO.setProducts((list1));
+        };
+
+        executor.execute(runnableTask1);
+        executor.execute(runnableTask2);
+        awaitTerminationAfterShutdown(executor);
+
+            return responseDTO;
+
+
         }
-        for (Map<String, Object> product: locationlist) {
-            // parse product into ProductDTO and add into productDTOS list
-            String title= (String) product.get("name");
-            ProductDTO p=new ProductDTO();
-
-            p.setDescription((String) product.get("description"));
-            p.setInstock((int) product.get("isInStock") == 1 ? true: false);
-            p.setSaleprice(Double.parseDouble(product.get("offerPrice").toString()));
-            p.setTitle(title);
-            list1.add(p);
-        }
-        SearchResponseDTO responseDTO =new SearchResponseDTO();
-        responseDTO.setProducts((list));
-        responseDTO.setProducts((list1));
-        return responseDTO;
-
-
     }
-}
