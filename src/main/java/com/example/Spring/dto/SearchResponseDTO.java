@@ -22,4 +22,12 @@ public class SearchResponseDTO {
     public void setProductLocation(List<ProductDTO> productLocation) {
         this.productLocation = productLocation;
     }
+
+    @Override
+    public String toString() {
+        return "SearchResponseDTO{" +
+                "products=" + products +
+                ", productLocation=" + productLocation +
+                '}';
+    }
 }

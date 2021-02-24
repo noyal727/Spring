@@ -54,7 +54,7 @@ public class SearchServiceImpl implements SearchService {
 
                 p.setDescription((String) product.get("description"));
                 p.setInstock((int) product.get("isInStock") == 1 ? true : false);
-                p.setSaleprice(Double.parseDouble(product.get("offerPrice").toString()));
+                //p.setSaleprice(Double.parseDouble(product.get("offerPrice").toString()));
                 p.setTitle(title);
                 list.add(p);
 
@@ -72,11 +72,11 @@ public class SearchServiceImpl implements SearchService {
 
                 p.setDescription((String) product.get("description"));
                 p.setInstock((int) product.get("isInStock") == 1 ? true : false);
-                p.setSaleprice(Double.parseDouble(product.get("offerPrice").toString()));
+                //p.setSaleprice(Double.parseDouble(product.get("offerPrice").toString()));
                 p.setTitle(title);
                 list1.add(p);
             }
-            responseDTO.setProducts((list1));
+            responseDTO.setProductLocation((list1));
         };
 
         executor.execute(runnableTask1);
